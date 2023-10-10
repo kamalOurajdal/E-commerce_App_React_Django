@@ -3,8 +3,7 @@
 # Ignore virtual environment files
 venv/
 .venv/
-.env/
-.hey
+*.env
 nk.me
 
 # Ignore database files
