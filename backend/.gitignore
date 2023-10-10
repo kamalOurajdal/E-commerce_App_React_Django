@@ -4,6 +4,8 @@
 venv/
 .venv/
 .env/
+.test/
+
 
 # Ignore database files
 db.sqlite3
