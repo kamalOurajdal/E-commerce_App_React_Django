@@ -5,7 +5,7 @@ venv/
 .venv/
 .env/
 .hey
-
+nk.me
 
 # Ignore database files
 db.sqlite3
