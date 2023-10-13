@@ -43,6 +43,8 @@ class CategoryType(DjangoObjectType):
 
 class Query(graphene.ObjectType):
     all_products = graphene.List(ProductType)
+    promotions = graphene.List(ProductType)
+    product_by_id = graphene.Field(ProductType, id=graphene.Int(required=True))
     colors = graphene.List(ColorType)
     favorite_lists = graphene.List(FavoriteListType)
     images = graphene.List(ImageType)
@@ -53,8 +55,15 @@ class Query(graphene.ObjectType):
 
 
 
+
     def resolve_all_products(self, info):
         return Product.objects.all()
+    
+    def resolve_product_by_id(self, info, id):
+        return Product.objects.get(id=id)
+
+    def resolve_promotions(self, info):
+        return Product.objects.filter(isPromotion=True)
 
     def resolve_colors(self, info):
         return Color.objects.all()

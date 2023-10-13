@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
 function ProductDetails() {
+  
   const product = {
     id: 1,
     name: "Nike Air Max 270",

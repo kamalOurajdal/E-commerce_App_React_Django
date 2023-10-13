@@ -4,7 +4,7 @@
 venv/
 .venv/
 *.env
-nk.me
+sauvgarde base
 
 # Ignore database files
 db.sqlite3

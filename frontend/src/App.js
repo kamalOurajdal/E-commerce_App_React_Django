@@ -20,10 +20,44 @@ import { useQuery, gql } from "@apollo/client";
 import Test from "./pages/Test";
 
 function App() {
-  const GET_Lists = gql`
+  const GET_PRODUCTS = gql`
     {
       allProducts {
         id
+        rating
+        isPromotion
+        promotionPrice
+        price
+        name
+        cover
+        countInStock
+        createdAt
+        description
+
+        images {
+          image
+        }
+        colors {
+          color
+        }
+        categories {
+          category
+        }
+        brands {
+          brand
+        }
+        sizes {
+          size
+        }
+      }
+    }
+  `;
+  const GET_PROMOTIONS = gql`
+    {
+      promotions {
+        isPromotion
+        id
+        promotionPrice
         rating
         price
         name
@@ -31,7 +65,7 @@ function App() {
         countInStock
         createdAt
         description
-        
+
         images {
           image
         }
@@ -52,19 +86,19 @@ function App() {
   `;
 
   const [products, setProducts] = useState([]);
-  const { loading, error, data } = useQuery(GET_Lists);
+  // products that has promotions
+  const [promotions, setPromotions] = useState([]);
+  const { loading: loadingProducts, error: errorProducts, data: dataProducts } = useQuery(GET_PRODUCTS);
 
   useEffect(() => {
-    if (data) {
-      setProducts(data.allProducts);
+    if (dataProducts) {
+      setProducts(dataProducts.allProducts);
       console.log("data", products);
     }
-    
-    if (loading) console.log("loading ......");
-    if (error) console.log("error ......");
-  }, [data]);
 
-
+    if (loadingProducts) console.log("loading ......");
+    if (errorProducts) console.log("error ......");
+  }, [dataProducts]);
 
   const { productItems } = Data;
   const [cartItem, setCartItem] = useState([]);
@@ -133,7 +167,7 @@ function App() {
       <Header nbrItem={cartItem.length} />
       <Routes>
         <Route path="/" exact>
-          <Route path="test" element={<Test products = {products}/>} />
+          <Route path="test" element={<Test products={products} />} />
           <Route
             index
             element={
