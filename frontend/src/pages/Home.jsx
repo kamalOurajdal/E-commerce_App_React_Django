@@ -4,8 +4,13 @@ import Categories from "../components/home/Categories";
 import SuperDeals from "../components/home/SuperDeals";
 import Discounts from "../components/home/Discounts";
 import MoreToLove from "../components/home/MoreToLove";
+import { gql, useQuery } from "@apollo/client";
+import { useLocation } from "react-router-dom";
 
 function Home({ addToCart, productItems, addToFavourite }) {
+
+  
+
 
 
   return (

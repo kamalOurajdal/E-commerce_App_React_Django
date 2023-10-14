@@ -5,7 +5,7 @@ function MoreToLoveCard({ product, addToCart, addToFavourite }) {
   return (
     <>
       <div className="group px-2 lg:px-4 bg-[#fff] relative shadow-md rounded-md mt-4 lg:mt-0 lg:m-2 flex-grow flex flex-col justify-around  h-72  ">
-        <Link to={"/search"}>
+        <Link to={`/product_details?id=${product.id}`}>
           <div className="cursor-pointer ">
             <div className="my-4 flex flex-col justify-center items-center ">
               <img

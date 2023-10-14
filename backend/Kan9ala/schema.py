@@ -1,5 +1,5 @@
 import graphene
-from store.models import Product, Color, FavoriteList, Image, Size, Brand, Category
+from store.models import Product, Color, FavoriteList, Image, Size, Brand, Category, Favourite
 from graphene_django import DjangoObjectType
 
 class ProductType(DjangoObjectType):
@@ -37,10 +37,6 @@ class CategoryType(DjangoObjectType):
         model = Category
         fields = "__all__"
 
-
-
-    
-
 class Query(graphene.ObjectType):
     all_products = graphene.List(ProductType)
     promotions = graphene.List(ProductType)
@@ -51,10 +47,6 @@ class Query(graphene.ObjectType):
     sizes = graphene.List(SizeType)
     brands = graphene.List(BrandType)
     categories = graphene.List(CategoryType)
-
-
-
-
 
     def resolve_all_products(self, info):
         return Product.objects.all()
@@ -82,6 +74,52 @@ class Query(graphene.ObjectType):
     
     def resolve_categories(self, info):
         return Category.objects.all()
-    
 
-schema = graphene.Schema(query=Query)
+
+class FavouriteType(DjangoObjectType):
+    class Meta:
+        model = Favourite
+
+class AddToFavourite(graphene.Mutation):
+    class Arguments:
+        product = graphene.Int()
+    
+    favourite = graphene.Field(FavouriteType)
+
+    def mutate(self, info, product):
+        user = info.context.user
+        if user.is_anonymous:
+            raise Exception('Not logged in!')
+        try:
+            product = Product.objects.get(id=product)
+        except:
+            raise Exception('Invalid product!')
+        favourite = Favourite.objects.create(user=user, product=product)
+        favourite.save()
+
+        return AddToFavourite(favourite = favourite)
+
+class RemoveFromFavourite(graphene.Mutation):
+    class Arguments:
+        product = graphene.Int()
+    
+    favourite = graphene.Field(FavouriteType)
+
+    def mutate(self, info, product):
+        user = info.context.user
+        if user.is_anonymous:
+            raise Exception('Not logged in!')
+        try:
+            product = Product.objects.get(id=product)
+        except:
+            raise Exception('Invalid product!')
+        favourite = Favourite.objects.get(user=user, product=product)
+        favourite.delete()
+
+        return RemoveFromFavourite(favourite = favourite)
+
+class Mutation(graphene.ObjectType):
+    add_to_favourite = AddToFavourite.Field()
+    remove_from_favourite = RemoveFromFavourite.Field()
+
+schema = graphene.Schema(query=Query, mutation=Mutation)

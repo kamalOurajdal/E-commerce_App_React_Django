@@ -212,7 +212,7 @@ function App() {
             }
           />
         </Route>
-        <Route path="product_details" element={<ProductDetails />} />
+        <Route path="product_details" element={<ProductDetails addToCart={addToCart}/>} />
         <Route path="products">
           <Route
             path="new"

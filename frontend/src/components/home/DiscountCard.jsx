@@ -1,5 +1,6 @@
 import React from "react";
 import Slider from "react-slick";
+import { Collapse } from 'react-collapse';
 
 function DiscountCard({ productItems }) {
   const settings = {
@@ -48,14 +49,14 @@ function DiscountCard({ productItems }) {
             >
               <div className="flex justify-center items-center ">
                 <img
-                  src={value.cover}
+                  src={"http://localhost:8000/"+value.cover}
                   alt=""
-                  className="w-24 group transform"
+                  className="h-20 group transform"
                 />
               </div>
               <div className="ml-4 mt-3">
-                <h4 className="font-bold">{value.name}</h4>
-                <span>${value.price}</span>
+                <h4 className="font-semibold text-sm text-gray-600">{value.name}</h4>
+                <span className="text-[#e94560] flex justify-center font-semibold">${value.price}</span>
               </div>
             </div>
             </div>

@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import { gql, useQuery } from "@apollo/client";
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
-function ProductDetails() {
-  
-  const product = {
+function ProductDetails({addToCart}) {
+  const product1 = {
     id: 1,
     name: "Nike Air Max 270",
     price: 150,
@@ -21,38 +22,120 @@ function ProductDetails() {
     availability: "In Stock",
     brand: "Nike",
   };
-  const [selectedImage, setSelectedImage] = useState(product.cover);
+
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+
+  const id = searchParams.get("id");
+  console.log("id ", id);
+
+  const GET_PRODUCT_BY_ID = gql`
+    {
+      productById(id: ${id}) {
+        id
+        rating
+        isPromotion
+        promotionPrice
+        price
+        name
+        cover
+        countInStock
+        createdAt
+        description
+
+        images {
+          image
+        }
+        colors {
+          color
+        }
+        categories {
+          category
+        }
+        brands {
+          brand
+        }
+        sizes {
+          size
+        }
+      }
+    }
+  `;
+
+  const { loading, error, data } = useQuery(GET_PRODUCT_BY_ID);
+  const [product, setProduct] = useState({});
+  const [selectedImage, setSelectedImage] = useState();
+
+  useEffect(() => {
+    if (data && data.productById) {
+      console.log("data", data.productById);
+      setProduct(data.productById);
+      setSelectedImage("http://localhost:8000/" + data.productById.cover);
+    }
+
+    if (loading) {
+      console.log("loading ......");
+    }
+
+    if (error) {
+      console.log("error ......");
+    }
+  }, [data]);
+
   return (
     <section className="bg-white pb-32 pt-12">
-      <div className="w-[84%] mx-auto ">
-        <div className="flex my-4 space-x-4 ">
-          <div className="">
-            <div className="  mb-12">
-              <div className="w-96 h-96 bg-gray-300">
+      <div className="mx-4 lg:w-[84%] lg:mx-auto ">
+        <div className="flex flex-col lg:flex-row lg:my-4 lg:space-x-4 ">
+          <div className=" flex justify-center items-center">
+            <div className="mb-8  lg:mb-12">
+              <div className="w-96 h-96  flex justify-center items-center">
                 <img
                   src={selectedImage}
                   alt=""
-                  className="h-full w-full object-cover rounded shadow-md"
+                  className="h-full  object-cover rounded shadow-md"
                 />
               </div>
               <div className="w-full mt-4 mb-4 flex justify-center space-x-2">
-                {product.images.map((image, index) => {
-                  return (
-                    <div className="" key={index}>
-                      <img
-                        src={image}
-                        alt=""
-                        className="w-16 h-16 object-cover rounded hover:border  border-black  cursor-pointer"
-                        onClick={() => setSelectedImage(image)}
-                      />
-                    </div>
-                  );
-                })}
+                {product &&
+                  product.images &&
+                  product.images.map((item, index) => {
+                    return (
+                      <div
+                        className="hover:border hover:border-black rounded-md border w-16 flex justify-center items-center"
+                        key={index}
+                        onClick={() =>
+                          setSelectedImage(
+                            "http://localhost:8000/" + item.image
+                          )
+                        }
+                      >
+                        <img
+                          src={"http://localhost:8000/" + item.image}
+                          alt=""
+                          className=" h-16 object-cover rounded   cursor-pointer"
+                        />
+                      </div>
+                    );
+                  })}
+                <div
+                  className="hover:border hover:border-black rounded-md border border w-16 flex justify-center items-center"
+                  onClick={() =>
+                    setSelectedImage("http://localhost:8000/" + product.cover)
+                  }
+                >
+                  <img
+                    src={"http://localhost:8000/" + product.cover}
+                    alt=""
+                    className=" h-16 object-cover rounded   cursor-pointer"
+                  />
+                </div>
               </div>
             </div>
           </div>
-          <div className="p-4 ">
-            <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
+
+          {/* small screen */}
+          <div className="lg:hidden">
+            <h1 className="text-xl font-bold mb-4">{product.name}</h1>
             <div className="flex mb-4">
               <div className="flex items-center">
                 <div className="flex items-center text-[#ffcd4e]">
@@ -75,33 +158,73 @@ function ProductDetails() {
             </div>
             <div className="mb-4">
               <div className="text-xl font-bold mb-2">${product.price}</div>
-              <div className="text-sm text-gray-600">
-                {product.availability}
+            </div>
+          </div>
+
+              {/* large screen description */}
+
+          <div className="hidden lg:flex lg:w-4/5">
+            <div className="lg:p-4 ">
+              <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
+              <div className="flex mb-4">
+                <div className="flex items-center">
+                  <div className="flex items-center text-[#ffcd4e]">
+                    <i className="fa fa-star"></i>
+                    <i className="fa fa-star"></i>
+                    <i className="fa fa-star"></i>
+                    <i className="fa fa-star"></i>
+                    <i className="fa fa-star"></i>
+                  </div>
+                  <div className="ml-2 text-sm text-gray-600">
+                    ({product.reviews} Reviews)
+                  </div>
+                </div>
+                <div className="flex items-center ml-4">
+                  <div className="text-sm text-gray-600">Brand:</div>
+                  <div className="ml-2 text-sm text-gray-600">
+                    {product.brand}
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="mb-4">
-              <div className="text-sm text-gray-600">Description:</div>
-              <div className="text-sm text-gray-600">{product.description}</div>
-            </div>
-            <div className="mb-4">
-              <div className="text-sm text-gray-600">Availability:</div>
-              <div className="text-sm text-gray-600">
-                {product.availability}
+              <div className="mb-4">
+                <div className="text-xl font-bold mb-2">${product.price}</div>
+                <div className="text-sm text-gray-600">
+                  {product.availability}
+                </div>
               </div>
-            </div>
-            <div className="mb-4 space-y-3">
-              <h1 className="font-bold">Color:</h1>
-              <div className="flex space-x-4">
-                <div className="w-8 h-8 rounded-full bg-red-500"></div>
-                <div className="w-8 h-8 rounded-full bg-blue-500"></div>
-                <div className="w-8 h-8 rounded-full bg-gray-500"></div>
-                <div className="w-8 h-8 rounded-full bg-green-500"></div>
-                <div className="w-8 h-8 rounded-full bg-yellow-500"></div>
+              <div className="mb-4">
+                <div className="text-sm text-gray-600">Description:</div>
+                <div className="text-sm text-gray-600">
+                  {product.description}
+                </div>
+              </div>
+              <div className="mb-4">
+                <div className="text-sm text-gray-600">Availability:</div>
+                <div className="text-sm text-gray-600">
+                  {product.availability}
+                </div>
+              </div>
+              <div className="mb-4 space-y-3">
+                <h1 className="font-bold">Color:</h1>
+                <div className="flex space-x-4">
+                  {product &&
+                    product.colors &&
+                    product.colors.map((item, index) => {
+                      return (
+                        <div
+                          key={index}
+                          className="w-8 h-8 rounded-full border shadow-md cursor-pointer "
+                          style={{ backgroundColor: item.color }}
+                        ></div>
+                      );
+                    })}
+                </div>
               </div>
             </div>
           </div>
+
           {/* Shiping */}
-          <div className="border w-1/2 h-fit p-4 rounded-md  space-y-4 bg-white">
+          <div className="border lg:w-1/2 h-fit p-4 rounded-md space-y-4 bg-white">
             <div className="flex justify-between">
               <h4 className="font-medium">Delivered to</h4>
               <h5 className="text-gray-500 text-sm">Morocco</h5>
@@ -120,7 +243,7 @@ function ProductDetails() {
               <h6 className="text-xs">Free returns within 14 days</h6>
             </div>
             <hr />
-            <div >
+            <div>
               <h1 className="font-medium">Quantity</h1>
               <div className="flex justify-between items-center w-24 mt-2 mb-2">
                 <button
@@ -142,9 +265,34 @@ function ProductDetails() {
                 <button className="w-full bg-[#FD384F] p-2 mt-3 text-white font-semibold rounded-md">
                   Buy now
                 </button>
-                <button className="w-full bg-[#FFE6E7] p-2 mt-3 text-[#FD384F] font-semibold rounded-md">
+                <button className="w-full bg-[#FFE6E7] p-2 mt-3 text-[#FD384F] font-semibold rounded-md"
+                onClick={() => addToCart(product)}>
                   Add to Cart
                 </button>
+              </div>
+            </div>
+          </div>
+
+          {/* small screen description*/}
+          <div className="lg:p-4 mt-12  lg:hidden">
+            <div className="mb-4">
+              <div className="text-lg font-bold mb-4 ">Description:</div>
+              <div className="text-sm text-gray-600">{product.description}</div>
+            </div>
+            <div className="mb-4 space-y-3">
+              <h1 className="font-bold">Color:</h1>
+              <div className="flex space-x-4">
+                {product &&
+                  product.colors &&
+                  product.colors.map((item, index) => {
+                    return (
+                      <div
+                        key={index}
+                        className="w-8 h-8 rounded-full border shadow-md cursor-pointer  "
+                        style={{ backgroundColor: item.color }}
+                      ></div>
+                    );
+                  })}
               </div>
             </div>
           </div>
